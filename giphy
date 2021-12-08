@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+results=$(curl -s "http://api.giphy.com/v1/gifs/random?tag=$(echo "$*" | sed -e 's/ /+/g')&api_key=$GIPHY_API_KEY")
+original=$(echo $results | jq -r '.data.images.original.url')
+original_size=$(echo $results | jq -r '.data.images.original.size' | numfmt --to=iec)
+downsized=$(echo $results | jq -r '.data.images.downsized.url')
+downsized_size=$(echo $results | jq -r '.data.images.downsized.size' | numfmt --to=iec)
+
+imgcat <(curl -s $original)
+
+echo "Original:  $(echo $original | awk -F '?' '{print $1}') ($original_size)"
+echo "Downsized: $(echo $downsized | awk -F '?' '{print $1}') ($downsized_size)"
+
